@@ -1,30 +1,47 @@
 #include "main.h"
-
+#include <unistd.h>
 /**
- * _printf - Produces output according to a format
- * @format: Is a character string. The format string
- * is composed of zero or more directives
+ * _printf - Emulate the original.
  *
- * Return: The number of characters printed (excluding
- * the null byte used to end output to strings)
- **/
+ * @format: Format by specifier.
+ *
+ * Return: count of chars.
+ */
 int _printf(const char *format, ...)
 {
-	int size;
+	int i = 0, count = 0, count_fun;
 	va_list args;
 
-	if (format == NULL)
-		return (-1);
-
-	size = _strlen(format);
-	if (size <= 0)
-		return (0);
-
 	va_start(args, format);
-	size = handler(format, args);
-
-	_putchar(-1);
+	if (!format || (format[0] == '%' && !format[1]))
+		return (-1);
+	if (format[0] == '%' && format[1] == ' ' && !format[2])
+		return (-1);
+	while (format[i])
+	{
+		count_fun = 0;
+		if (format[i] == '%')
+		{
+			if (!format[i + 1] || (format[i + 1] == ' ' && !format[i + 2]))
+			{
+				count = -1;
+				break;
+			}
+			count_fun += get_function(format[i + 1], args);
+			if (count_fun == 0)
+				count += _putchar(format[i + 1]);
+			if (count_fun == -1)
+				count = -1;
+			i++;
+		}
+		else
+		{
+			(count == -1) ? (_putchar(format[i])) : (count += _putchar(format[i]));
+		}
+		i++;
+		if (count != -1)
+			count += count_fun;
+	}
 	va_end(args);
-
-	return (size);
+	return (count);
 }
